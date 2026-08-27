@@ -4,6 +4,84 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MoniTwo</title>
+    <style>
+      :root {
+        --bg: #f8fafc;
+        --text: #0f172a;
+        --local-color: #059669;
+        --github-color: #0284c7;
+        --file-color: #d97706;
+      }
+
+      body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: var(--bg);
+        color: var(--text);
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+      }
+
+      .container {
+        text-align: center;
+        padding: 2rem;
+      }
+
+      .app-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: 0.5rem;
+      }
+
+      #status-text {
+        font-size: 2.75rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+
+      .local-mode {
+        color: var(--local-color);
+      }
+
+      .github-mode {
+        color: var(--github-color);
+      }
+
+      .file-mode {
+        color: var(--file-color);
+      }
+    </style>
   </head>
-  <body></body>
+  <body>
+    <div class="container">
+      <div class="app-title">MoniTwo</div>
+      <div id="status-text">Detecting environment...</div>
+    </div>
+    <script>
+      const hostname = window.location.hostname;
+      const protocol = window.location.protocol;
+      const statusEl = document.getElementById("status-text");
+
+      if (hostname.endsWith(".github.io")) {
+        statusEl.textContent = "GitHub Pages Mode";
+        statusEl.className = "github-mode";
+      } else if (hostname === "localhost" || hostname === "127.0.0.1") {
+        statusEl.textContent = "Localhost Mode";
+        statusEl.className = "local-mode";
+      } else if (protocol === "file:") {
+        statusEl.textContent = "Local File Mode";
+        statusEl.className = "file-mode";
+      } else {
+        statusEl.textContent = hostname;
+      }
+    </script>
+  </body>
 </html>
