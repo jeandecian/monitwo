@@ -22,6 +22,11 @@
         --card-bg: #fef08a;
         --card-border: #fde047;
         --pad-accent: #ca8a04;
+
+        --md-bg: #ffffff;
+        --md-border: #e2e8f0;
+        --md-header-bg: #f1f5f9;
+        --accent: #0284c7;
       }
 
       body {
@@ -71,7 +76,7 @@
       }
 
       .brand span {
-        color: #0284c7;
+        color: var(--accent);
       }
 
       .menubar-right {
@@ -110,9 +115,13 @@
       .stage-container {
         margin-top: 60px;
         width: 100%;
-        max-width: 650px;
+        max-width: 1100px;
         padding: 1rem;
         box-sizing: border-box;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        align-items: start;
       }
 
       .notepad-widget {
@@ -175,7 +184,7 @@
       .task-input-box button {
         padding: 0.6rem 1rem;
         background: var(--pad-accent);
-        color: #ffffff;
+        color: #000000;
         border: none;
         border-radius: 6px;
         font-weight: 700;
@@ -186,6 +195,7 @@
 
       .task-input-box button:hover {
         background: #a16207;
+        color: #ffffff;
       }
 
       .summary-bar {
@@ -284,13 +294,13 @@
 
       .btn-action.stop {
         background: #dc2626;
-        color: white;
+        color: #ffffff;
         border: none;
       }
 
       .btn-action.complete {
-        background: #16a34a;
-        color: #000000;
+        background: #15803d;
+        color: #ffffff;
         border: none;
       }
 
@@ -305,6 +315,78 @@
 
       .btn-delete:hover {
         color: #dc2626;
+      }
+
+      .markdown-widget {
+        background: var(--md-bg);
+        border: 1px solid var(--md-border);
+        border-radius: 8px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .markdown-header {
+        background: var(--md-header-bg);
+        border-bottom: 1px solid var(--md-border);
+        padding: 0.65rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .markdown-title {
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .btn-md-export {
+        background: var(--accent);
+        color: #ffffff;
+        border: none;
+        padding: 0.35rem 0.75rem;
+        border-radius: 5px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .btn-md-export:hover {
+        opacity: 0.9;
+      }
+
+      .markdown-textarea {
+        width: 100%;
+        height: 380px;
+        box-sizing: border-box;
+        border: none;
+        padding: 1rem;
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: var(--app-text);
+        resize: vertical;
+        outline: none;
+        background: #ffffff;
+      }
+
+      .markdown-footer {
+        padding: 0.4rem 1rem;
+        background: #f8fafc;
+        border-top: 1px solid var(--md-border);
+        font-size: 0.75rem;
+        color: #64748b;
+        display: flex;
+        justify-content: space-between;
       }
 
       .local-mode .status-dot {
@@ -329,6 +411,12 @@
 
       .file-mode {
         color: var(--file-color);
+      }
+
+      @media (max-width: 850px) {
+        .stage-container {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
@@ -362,6 +450,25 @@
           <span id="total-summary-time" class="summary-val">00:00:00</span>
         </div>
         <div id="task-list" class="task-list"></div>
+      </div>
+      <div class="markdown-widget">
+        <div class="markdown-header">
+          <div class="markdown-title"><span>📝</span> Markdown Scratchpad</div>
+          <button class="btn-md-export" onclick="downloadMarkdown()">
+            <span>⬇</span> Download .md
+          </button>
+        </div>
+        <textarea
+          id="markdown-input"
+          class="markdown-textarea"
+          aria-label="Markdown Scratchpad"
+          placeholder="# Quick Notes&#10;&#10;- Draft ideas, code snippets, or research here...&#10;- Auto-saves locally."
+          oninput="saveMarkdownNotes()"
+        ></textarea>
+        <div class="markdown-footer">
+          <span id="md-char-count">0 characters</span>
+          <span>Auto-saved to LocalStorage</span>
+        </div>
       </div>
     </div>
     <script>
@@ -523,7 +630,42 @@
         });
       }
 
+      const mdInput = document.getElementById("markdown-input");
+      const mdCharCount = document.getElementById("md-char-count");
+
+      function loadMarkdownNotes() {
+        const savedNotes = localStorage.getItem("monitwo_markdown_notes") || "";
+        mdInput.value = savedNotes;
+        updateMdCharCount();
+      }
+
+      function saveMarkdownNotes() {
+        localStorage.setItem("monitwo_markdown_notes", mdInput.value);
+        updateMdCharCount();
+      }
+
+      function updateMdCharCount() {
+        const len = mdInput.value.length;
+        mdCharCount.textContent = `${len} character${len === 1 ? "" : "s"}`;
+      }
+
+      function downloadMarkdown() {
+        const text = mdInput.value;
+        const blob = new Blob([text], { type: "text/markdown;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+
+        const timestamp = new Date().toISOString().slice(0, 10);
+        a.href = url;
+        a.download = `monitwo-notes-${timestamp}.md`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
       renderTasks();
+      loadMarkdownNotes();
     </script>
   </body>
 </html>
