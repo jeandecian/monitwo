@@ -11,6 +11,8 @@
         --local-color: #059669;
         --github-color: #0284c7;
         --file-color: #d97706;
+        --menubar-bg: rgba(255, 255, 255, 0.85);
+        --menubar-border: #e2e8f0;
       }
 
       body {
@@ -27,32 +29,92 @@
           sans-serif;
       }
 
-      .container {
-        text-align: center;
-        padding: 2rem;
+      .menubar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 36px;
+        background-color: var(--menubar-bg);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--menubar-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 1.25rem;
+        font-size: 0.85rem;
+        z-index: 1000;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
       }
 
-      .app-title {
-        font-size: 1.25rem;
+      .menubar-left {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
         font-weight: 600;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: #64748b;
-        margin-bottom: 0.5rem;
       }
 
-      #status-text {
-        font-size: 2.75rem;
-        font-weight: 800;
-        letter-spacing: -0.03em;
+      .brand {
+        letter-spacing: -0.01em;
+        font-weight: 700;
+      }
+
+      .brand span {
+        color: #0284c7;
+      }
+
+      .menubar-right {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-weight: 600;
+        font-size: 0.75rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 9999px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+      }
+
+      .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+      }
+
+      .placeholder-stage {
+        text-align: center;
+        color: #94a3b8;
+        font-size: 0.95rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        font-weight: 500;
+      }
+
+      .local-mode .status-dot {
+        background-color: var(--local-color);
       }
 
       .local-mode {
         color: var(--local-color);
       }
 
+      .github-mode .status-dot {
+        background-color: var(--github-color);
+      }
+
       .github-mode {
         color: var(--github-color);
+      }
+
+      .file-mode .status-dot {
+        background-color: var(--file-color);
       }
 
       .file-mode {
@@ -61,26 +123,35 @@
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="app-title">MoniTwo</div>
-      <div id="status-text">Detecting environment...</div>
+    <div class="menubar">
+      <div class="menubar-left">
+        <div class="brand">Moni<span>Two</span></div>
+      </div>
+      <div class="menubar-right">
+        <div id="status-pill" class="status-pill">
+          <span id="status-dot" class="status-dot"></span>
+          <span id="status-text">Detecting...</span>
+        </div>
+      </div>
     </div>
+    <div class="placeholder-stage">Stage ready for next widget</div>
     <script>
       const hostname = window.location.hostname;
       const protocol = window.location.protocol;
-      const statusEl = document.getElementById("status-text");
+      const pillEl = document.getElementById("status-pill");
+      const textEl = document.getElementById("status-text");
 
       if (hostname.endsWith(".github.io")) {
-        statusEl.textContent = "GitHub Pages Mode";
-        statusEl.className = "github-mode";
+        textEl.textContent = "GitHub Pages Mode";
+        pillEl.className = "status-pill github-mode";
       } else if (hostname === "localhost" || hostname === "127.0.0.1") {
-        statusEl.textContent = "Localhost Mode";
-        statusEl.className = "local-mode";
+        textEl.textContent = "Localhost Mode";
+        pillEl.className = "status-pill local-mode";
       } else if (protocol === "file:") {
-        statusEl.textContent = "Local File Mode";
-        statusEl.className = "file-mode";
+        textEl.textContent = "Local File Mode";
+        pillEl.className = "status-pill file-mode";
       } else {
-        statusEl.textContent = hostname;
+        textEl.textContent = hostname;
       }
     </script>
   </body>
