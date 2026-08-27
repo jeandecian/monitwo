@@ -67,7 +67,16 @@
       .menubar-right {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 1rem;
+      }
+
+      .menubar-clock {
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--text);
+        letter-spacing: -0.02em;
       }
 
       .status-pill {
@@ -132,10 +141,19 @@
           <span id="status-dot" class="status-dot"></span>
           <span id="status-text">Detecting...</span>
         </div>
+        <div id="menubar-clock" class="menubar-clock">00:00:00</div>
       </div>
     </div>
     <div class="placeholder-stage">Stage ready for next widget</div>
     <script>
+      function updateClock() {
+        const now = new Date();
+        document.getElementById("menubar-clock").textContent =
+          now.toLocaleTimeString();
+      }
+      setInterval(updateClock, 1000);
+      updateClock();
+
       const hostname = window.location.hostname;
       const protocol = window.location.protocol;
       const pillEl = document.getElementById("status-pill");
